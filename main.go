@@ -1,31 +1,19 @@
 package main
 
 import (
-	"log"
-	"os"
-
+	"apoteker.id_backend/config"
+	"apoteker.id_backend/router"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Unable to load env. Error: %s", err)
-	}
-
-	// get envs
-	port := os.Getenv("PORT")
-
 	// create new fiber app
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(&fiber.Map{
-			"hello": "world",
-		})
-	})
+	router.SetupRoutes(app)
+
+	// get envs
+	port := config.Config("PORT")
 
 	// listen to port
 	app.Listen(":" + port)
