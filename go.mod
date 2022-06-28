@@ -3,6 +3,7 @@ module apoteker.id_backend
 go 1.17
 
 require (
+	github.com/goccy/go-json v0.9.7
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/joho/godotenv v1.4.0
 	go.uber.org/zap v1.21.0
@@ -10,7 +11,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.37.0 // indirect
