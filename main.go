@@ -7,56 +7,79 @@ import (
 	"time"
 
 	"apoteker.id_backend/config"
+	"apoteker.id_backend/database"
 	router "apoteker.id_backend/routers"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
-func main() {
-	// setting up
-	port := config.Config("PORT")
-	zlog, _ := zap.NewDevelopment()
-	defer zlog.Sync()
+var (
+	log *zap.Logger
+	db  *gorm.DB
+)
 
-	// fiber config
-	fiberConf := &fiber.Config{
-		AppName:      "apoteker_backend v1.0.0",
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		IdleTimeout:  120 * time.Second,
-		JSONEncoder:  json.Marshal,
-		JSONDecoder:  json.Unmarshal,
+// fiber config
+var fiberConf = &fiber.Config{
+	AppName:      "apoteker_backend v1.0.0",
+	ReadTimeout:  30 * time.Second,
+	WriteTimeout: 30 * time.Second,
+	IdleTimeout:  10 * time.Second,
+	JSONEncoder:  json.Marshal,
+	JSONDecoder:  json.Unmarshal,
+}
+
+func main() {
+	// get all envs
+	port := config.Config("PORT")
+	env := config.Config("ENV")
+
+	// set logger, database connection
+	// based on given env
+	log, _ = zap.NewProduction()
+	defer log.Sync()
+
+	// connect database
+	// get the sql from db
+	// it would be used to close the connection
+	db = database.ConnectDB(env, log)
+	sql, err := db.DB()
+	if err != nil {
+		log.Sugar().Fatal("An error has occured\n", err)
 	}
 
 	// create new fiber app
+	// setup middlewares and routers
 	app := fiber.New(*fiberConf)
-
-	// middlewares
 	app.Use(logger.New())
-
-	// routes
-	router.SetupRouter(app, zlog)
+	router.SetupRouter(app, log)
 
 	// run the server
 	// and listen to port
 	go func() {
 		err := app.Listen(":" + port)
 		if err != nil {
-			zlog.Sugar().Panic("Unable to start server ", err)
+			log.Sugar().Panic("Unable to start server ", err)
 		}
 	}()
 
 	// graceful shutdown mechanism
 	// first create channel to check signal
-	channel := make(chan os.Signal, 1)
-	signal.Notify(channel, os.Interrupt)
-	signal.Notify(channel, syscall.SIGTERM)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
 
 	// second notify the signal
 	// and print info then shutdown
-	sig := <-channel
-	zlog.Sugar().Info("Process terminated, gracefully shutdown the app ", sig)
-	app.Shutdown()
+	s := <-c
+	log.Sugar().Info("Gracefully shutting down...\n", s)
+	_ = app.Shutdown()
+
+	log.Sugar().Info("Running cleanup tasks...")
+
+	// kill other tasks
+	sql.Close()
+	log.Sugar().Info("App successfully shutdown")
 }

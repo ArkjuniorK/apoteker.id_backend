@@ -11,5 +11,4 @@ func SetupRouter(app *fiber.App, log *zap.Logger) {
 
 	// router for apotek
 	SetupApotek(log, api.Group("/apotek"))
-
 }
