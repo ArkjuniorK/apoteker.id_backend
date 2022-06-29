@@ -7,17 +7,18 @@ import (
 	"time"
 
 	"apoteker.id_backend/config"
-	"apoteker.id_backend/routers"
+	router "apoteker.id_backend/routers"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
 )
 
 func main() {
 	// setting up
 	port := config.Config("PORT")
-	logger, _ := zap.NewDevelopment()
-	defer logger.Sync()
+	zlog, _ := zap.NewDevelopment()
+	defer zlog.Sync()
 
 	// fiber config
 	fiberConf := &fiber.Config{
@@ -32,15 +33,18 @@ func main() {
 	// create new fiber app
 	app := fiber.New(*fiberConf)
 
-	// register routes here
-	routers.SetupRoutes(app)
+	// middlewares
+	app.Use(logger.New())
+
+	// routes
+	router.SetupRouter(app, zlog)
 
 	// run the server
+	// and listen to port
 	go func() {
-		// listen to port
 		err := app.Listen(":" + port)
 		if err != nil {
-			logger.Sugar().Errorf("Unable to start server %s", err)
+			zlog.Sugar().Panic("Unable to start server ", err)
 		}
 	}()
 
@@ -53,6 +57,6 @@ func main() {
 	// second notify the signal
 	// and print info then shutdown
 	sig := <-channel
-	logger.Sugar().Info("Process terminated, gracefully shutdown the app ", sig)
+	zlog.Sugar().Info("Process terminated, gracefully shutdown the app ", sig)
 	app.Shutdown()
 }

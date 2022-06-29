@@ -1,16 +1,15 @@
-package routers
+package router
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
+)
 
-func SetupRoutes(app *fiber.App) {
-	api := app.Group("api")
+func SetupRouter(app *fiber.App, log *zap.Logger) {
+	// group the api router
+	api := app.Group("/api")
 
-	apotek := api.Group("apotek")
-
-	apotek.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"hello": "wolrd",
-		})
-	})
+	// router for apotek
+	SetupApotek(log, api.Group("/apotek"))
 
 }
