@@ -14,6 +14,7 @@ func Config(key string) string {
 	if err != nil {
 		fmt.Print("Error loading .env file")
 	}
+
 	// Return the value of the variable
 	return os.Getenv(key)
 }
