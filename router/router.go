@@ -1,6 +1,7 @@
 package router
 
 import (
+	apotekRoutes "apoteker.id_backend/internal/routes/apotek"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
@@ -10,5 +11,6 @@ func SetupRouter(app *fiber.App, log *zap.Logger) {
 	api := app.Group("/api")
 
 	// router for apotek
-	SetupApotek(log, api.Group("/apotek"))
+	apotekRoutes.SetupApotekRoutes(api)
+
 }

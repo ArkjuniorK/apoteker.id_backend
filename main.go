@@ -8,9 +8,10 @@ import (
 
 	"apoteker.id_backend/config"
 	"apoteker.id_backend/database"
-	router "apoteker.id_backend/routers"
+	router "apoteker.id_backend/router"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
