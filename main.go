@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"apoteker.id_backend/config"
-	router "apoteker.id_backend/routers"
+	router "apoteker.id_backend/router"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+
+	// "github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
 )
 
@@ -34,7 +35,7 @@ func main() {
 	app := fiber.New(*fiberConf)
 
 	// middlewares
-	app.Use(logger.New())
+	// app.Use(logger.New())
 
 	// routes
 	router.SetupRouter(app, zlog)
