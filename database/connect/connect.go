@@ -1,4 +1,4 @@
-package database
+package connect
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 var DB *gorm.DB
 
-func connect() {
+func Connect() {
 	var err error
 
 	dbName := config.Config("DB_NAME")
