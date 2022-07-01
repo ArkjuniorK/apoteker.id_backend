@@ -1,12 +1,13 @@
-package apotekRoutes
+package routes
 
 import (
-	apotekHandler "apoteker.id_backend/internal/handlers/apotek"
+	apotekHandler "github.com/ArkjuniorK/apoteker.id_backend/internal/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 
 func SetupApotekRoutes(r fiber.Router) {
 	apotek := r.Group("/apotek")
+
 	// Read all apoteks
 	apotek.Get("/", apotekHandler.GetApoteks)
 	// Create a apotek

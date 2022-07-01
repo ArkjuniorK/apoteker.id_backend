@@ -1,41 +1,52 @@
 package database
 
 import (
-	"apoteker.id_backend/config"
+	"fmt"
+
+	"github.com/ArkjuniorK/apoteker.id_backend/config"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-var db *gorm.DB
-var err error
+var (
+	DB  *gorm.DB
+	err error
+)
 
-func ConnectDB(env string, log *zap.Logger) *gorm.DB {
-	dsn := config.Config("DSN")
+func ConnectDB(log *zap.Logger) *gorm.DB {
+	appEnv := config.Config("APP_ENV")
+	dbName := config.Config("DB_NAME")
+	dbUser := config.Config("DB_USER")
+	dbPass := config.Config("DB_PASS")
+	dbHost := config.Config("DB_HOST")
+	dbPort := config.Config("DB_PORT")
+	dbSSLMode := config.Config("DB_SSLMODE")
 
-	// if env is development connect to mysql
-	if env == "development" {
-		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
-		})
+	// if env is equal to development
+	// connect db to mysql
+	if appEnv == "development" { //use mysql
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
+		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		// check error
 		if err != nil {
-			log.Sugar().Fatalf("Unable to connect to database. \n", err)
+			log.Sugar().Fatalf("Unalbe to connect MySQL, error: %s", err)
 		}
 
-		log.Info("Database connected")
-		return db
+		// return DB
+		log.Sugar().Info("Connected to MySQL")
+		return DB
 	}
 
-	// otherwise connect to postgres
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	// otherwise use Postgres
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode)
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	fmt.Println("postgres")
 	if err != nil {
-		log.Sugar().Fatalf("Unable to connect to database. \n", err)
+		panic(err)
 	}
 
-	log.Info("Database connected")
-	return db
+	log.Sugar().Info("Connected to Postgres")
+	return DB
 }

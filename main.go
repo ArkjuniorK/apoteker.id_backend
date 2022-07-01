@@ -6,12 +6,11 @@ import (
 	"syscall"
 	"time"
 
-	"apoteker.id_backend/config"
-	"apoteker.id_backend/database"
-	router "apoteker.id_backend/router"
+	"github.com/ArkjuniorK/apoteker.id_backend/config"
+	"github.com/ArkjuniorK/apoteker.id_backend/database"
+	"github.com/ArkjuniorK/apoteker.id_backend/router"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -35,7 +34,6 @@ var fiberConf = &fiber.Config{
 func main() {
 	// get all envs
 	port := config.Config("PORT")
-	env := config.Config("ENV")
 
 	// set logger, database connection
 	// based on given env
@@ -45,7 +43,7 @@ func main() {
 	// connect database
 	// get the sql from db
 	// it would be used to close the connection
-	db = database.ConnectDB(env, log)
+	db = database.ConnectDB(log)
 	sql, err := db.DB()
 	if err != nil {
 		log.Sugar().Fatal("An error has occured\n", err)
@@ -54,7 +52,12 @@ func main() {
 	// create new fiber app
 	// setup middlewares and routers
 	app := fiber.New(*fiberConf)
-	app.Use(logger.New())
+	app.Use(logger.New(logger.Config{
+		Format:   "[${ip}]:${port} ${status} - ${method} ${path}\n",
+		TimeZone: "Asia/Makassar",
+	}))
+
+	// setup router here
 	router.SetupRouter(app, log)
 
 	// run the server
