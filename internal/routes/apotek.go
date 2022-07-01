@@ -1,21 +1,23 @@
 package routes
 
 import (
-	apotekHandler "github.com/ArkjuniorK/apoteker.id_backend/internal/handlers"
+	"github.com/ArkjuniorK/apoteker.id_backend/internal/handlers"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 )
 
-func SetupApotekRoutes(r fiber.Router) {
+func SetupApotekRoutes(r fiber.Router, l *zap.Logger) {
 	apotek := r.Group("/apotek")
+	handler := handlers.New(l)
 
 	// Read all apoteks
-	apotek.Get("/", apotekHandler.GetApoteks)
+	apotek.Get("/", handler.GetApoteks)
 	// Create a apotek
-	apotek.Post("/", apotekHandler.CreateApotek)
+	apotek.Post("/", handler.CreateApotek)
 	// Read one apotek
-	apotek.Get("/:apotekId", apotekHandler.GetApotek)
+	apotek.Get("/:apotekId", handler.GetApotek)
 	// Update one apotek
-	apotek.Put("/:apotekId", apotekHandler.UpdateApotek)
+	apotek.Put("/:apotekId", handler.UpdateApotek)
 	// Delete one apotek
-	apotek.Delete("/:apotekId", apotekHandler.DeleteApotek)
+	apotek.Delete("/:apotekId", handler.DeleteApotek)
 }

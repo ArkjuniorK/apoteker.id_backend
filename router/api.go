@@ -11,5 +11,5 @@ func SetupRouter(app *fiber.App, log *zap.Logger) {
 	api := app.Group("/api")
 
 	// router for apotek
-	routes.SetupApotekRoutes(api)
+	routes.SetupApotekRoutes(api, log)
 }
