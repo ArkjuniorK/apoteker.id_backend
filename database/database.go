@@ -23,7 +23,8 @@ func ConnectDB(log *zap.Logger) *gorm.DB {
 	dbPass := config.Config("DB_PASS")
 	dbHost := config.Config("DB_HOST")
 	dbPort := config.Config("DB_PORT")
-	dbSSLMode := config.Config("DB_SSLMODE")
+	// dbSSLMode := config.Config("DB_SSLMODE")
+	dbURI := config.Config("DATABASE_URL")
 
 	// if env is equal to development
 	// connect db to mysql
@@ -38,8 +39,8 @@ func ConnectDB(log *zap.Logger) *gorm.DB {
 		log.Sugar().Infof("Connected to MySQL")
 	} else {
 		// otherwise use Postgres
-		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode)
-		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		// dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode)
+		DB, err = gorm.Open(postgres.Open(dbURI), &gorm.Config{})
 		fmt.Println("postgres")
 		if err != nil {
 			panic(err)
