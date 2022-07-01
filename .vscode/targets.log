@@ -8,7 +8,7 @@ Makefile:2: *** missing separator.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Jul  1 10:48:24 2022
+# Make data base, printed on Fri Jul  1 13:17:58 2022
 
 # Variables
 
@@ -21,7 +21,7 @@ NO_AT_BRIDGE = 1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ffdf9bd8-71c9-4eff-9adf-34bd44487d97.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-e4e12bc1-5f95-48fa-b5ac-6c7dcc268306.sock
 # environment
 VSCODE_CWD = /home/arkjuniork
 # environment
@@ -103,7 +103,7 @@ ZSH = /home/arkjuniork/.oh-my-zsh
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 19682
+VSCODE_PID = 55513
 # environment
 SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS = 0
 # environment
@@ -141,7 +141,7 @@ MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/arkjuniork/.dotnet/tools:/home/arkjuniork/go/bin:/home/arkjuniork/tools/kotlinc/bin:/home/arkjuniork/tools/cmdline-tools/bin
+PATH = /usr/lib64/ccache:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/arkjuniork/.dotnet/tools:/home/arkjuniork/go/bin:/home/arkjuniork/tools/kotlinc/bin:/home/arkjuniork/tools/cmdline-tools/bin
 # default
 MAKEFILES := 
 # automatic
@@ -193,7 +193,7 @@ which_declare = typeset -f
 # environment
 DEBUGINFOD_URLS = https://debuginfod.fedoraproject.org/ 
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 19682
+GIO_LAUNCHED_DESKTOP_FILE_PID = 55513
 # environment
 SSH_AGENT_PID = 3539
 # environment
@@ -282,6 +282,7 @@ build:
 # VPATH Search Paths
 
 # No 'vpath' search paths.
+ 
 
 # No general ('VPATH' variable) search path.
 
@@ -290,8 +291,7 @@ build:
 
 # strcache performance: lookups = 28 / hit rate = 17%
 # hash-table stats:
- 
 # Load=23/8192=0%, Rehash=0, Collisions=0/28=0%
-# Finished Make data base on Fri Jul  1 10:48:24 2022
+# Finished Make data base on Fri Jul  1 13:17:58 2022
 
  

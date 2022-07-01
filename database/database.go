@@ -35,7 +35,7 @@ func ConnectDB(log *zap.Logger) *gorm.DB {
 		}
 
 		// return DB
-		log.Sugar().Info("Connected to MySQL")
+		log.Sugar().Infof("Connected to MySQL")
 		return DB
 	}
 

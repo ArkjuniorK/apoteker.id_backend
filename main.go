@@ -13,13 +13,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"gorm.io/gorm"
 )
 
-var (
-	log *zap.Logger
-	db  *gorm.DB
-)
+var db *gorm.DB
 
 // fiber config
 var fiberConf = &fiber.Config{
@@ -31,31 +29,23 @@ var fiberConf = &fiber.Config{
 	JSONDecoder:  json.Unmarshal,
 }
 
+var loggerConf = &logger.Config{
+	Format:     "${time}\t${method}\b${path}\t${status}\n",
+	TimeZone:   "Asia/Makassar",
+	TimeFormat: "2 Jan 2006 15:04:05",
+}
+
 func main() {
 	// get all envs
 	port := config.Config("PORT")
 
-	// set logger, database connection
-	// based on given env
-	log, _ = zap.NewProduction()
+	log := InitLogger()
 	defer log.Sync()
-
-	// connect database
-	// get the sql from db
-	// it would be used to close the connection
-	db = database.ConnectDB(log)
-	sql, err := db.DB()
-	if err != nil {
-		log.Sugar().Fatal("An error has occured\n", err)
-	}
 
 	// create new fiber app
 	// setup middlewares and routers
 	app := fiber.New(*fiberConf)
-	app.Use(logger.New(logger.Config{
-		Format:   "[${ip}]:${port} ${status} - ${method} ${path}\n",
-		TimeZone: "Asia/Makassar",
-	}))
+	app.Use(logger.New(*loggerConf))
 
 	// setup router here
 	router.SetupRouter(app, log)
@@ -69,6 +59,15 @@ func main() {
 		}
 	}()
 
+	// connect database
+	// get the sql from db
+	// it would be used to close the connection
+	db = database.ConnectDB(log)
+	sql, err := db.DB()
+	if err != nil {
+		log.Sugar().Fatal("An error has occured\n", err)
+	}
+
 	// graceful shutdown mechanism
 	// first create channel to check signal
 	c := make(chan os.Signal, 1)
@@ -81,9 +80,46 @@ func main() {
 	log.Sugar().Info("Gracefully shutting down...\n", s)
 	_ = app.Shutdown()
 
-	log.Sugar().Info("Running cleanup tasks...")
-
 	// kill other tasks
+	log.Sugar().Info("Running cleanup tasks...")
 	sql.Close()
 	log.Sugar().Info("App successfully shutdown")
+}
+
+// function to initate logger
+// with default configuration
+// @todo:
+// - use env to determine different config
+func InitLogger() *zap.Logger {
+	// set logger configuration
+	conf := zap.Config{
+		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
+		Encoding:         "console",
+		Development:      false,
+		OutputPaths:      []string{"stderr"},
+		ErrorOutputPaths: []string{"stderr"},
+		EncoderConfig: zapcore.EncoderConfig{
+			MessageKey:    "M",
+			LevelKey:      "L",
+			TimeKey:       "T",
+			StacktraceKey: "S",
+			CallerKey:     "C",
+			NameKey:       "N",
+
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalLevelEncoder,
+			EncodeTime:     zapcore.TimeEncoderOfLayout("2 Jan 2006 15:04:05"),
+			EncodeDuration: zapcore.StringDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
+	}
+
+	// build configuration
+	log, err := conf.Build()
+	if err != nil {
+		panic(err)
+	}
+
+	// return the log
+	return log
 }
