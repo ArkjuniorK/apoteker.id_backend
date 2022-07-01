@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"apoteker.id_backend/config"
+	"apoteker.id_backend/internal/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,4 +38,6 @@ func Connect() {
 		}
 	}
 	fmt.Println("Connection Opened to Database")
+	DB.AutoMigrate(&model.Apotek{})
+	fmt.Println("Database Migrated")
 }
