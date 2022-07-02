@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ArkjuniorK/apoteker.id_backend/config"
+	"github.com/ArkjuniorK/apoteker.id_backend/internal/model"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -34,19 +35,19 @@ func ConnectDB(log *zap.Logger) *gorm.DB {
 			log.Sugar().Fatalf("Unalbe to connect MySQL, error: %s", err)
 		}
 
-		// return DB
 		log.Sugar().Infof("Connected to MySQL")
-		return DB
+	} else {
+		// otherwise use Postgres
+		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode)
+		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		fmt.Println("postgres")
+		if err != nil {
+			panic(err)
+		}
+
+		log.Sugar().Info("Connected to Postgres")
 	}
 
-	// otherwise use Postgres
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode)
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	fmt.Println("postgres")
-	if err != nil {
-		panic(err)
-	}
-
-	log.Sugar().Info("Connected to Postgres")
+	DB.AutoMigrate(&model.Apotek{})
 	return DB
 }
