@@ -1,9 +1,12 @@
 package model
 
+import "gorm.io/gorm"
+
 type Apotek struct {
-	// gorm.Model
-	ID      uint
-	Logo    string
-	Name    string
-	Address string
+	gorm.Model `json:"-"`
+	ID         uint       `json:"id"`
+	Logo       string     `json:"logo"`
+	Name       string     `json:"name"`
+	Address    string     `json:"address"`
+	Apotekers  []Apoteker `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"apoteker_lists"`
 }

@@ -49,6 +49,6 @@ func ConnectDB(log *zap.Logger) *gorm.DB {
 		log.Sugar().Info("Connected to Postgres")
 	}
 
-	DB.AutoMigrate(&model.Apotek{})
+	DB.AutoMigrate(&model.Apotek{}, &model.Apoteker{})
 	return DB
 }
