@@ -9,7 +9,7 @@ import (
 
 func SetupApotekRoutes(r fiber.Router, l *zap.Logger, db *gorm.DB) {
 	apotek := r.Group("/apotek")
-	handler := handlers.New(l, db)
+	handler := handlers.NewApotekHandler(l, db)
 
 	// Read all apoteks
 	apotek.Get("/", handler.GetApoteks)

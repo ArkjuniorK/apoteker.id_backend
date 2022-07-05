@@ -41,7 +41,6 @@ func ConnectDB(log *zap.Logger) *gorm.DB {
 		// otherwise use Postgres
 		// dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode)
 		DB, err = gorm.Open(postgres.Open(dbURI), &gorm.Config{})
-		fmt.Println("postgres")
 		if err != nil {
 			panic(err)
 		}

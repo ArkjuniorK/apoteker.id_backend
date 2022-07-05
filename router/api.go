@@ -15,5 +15,5 @@ func SetupRouter(app *fiber.App, log *zap.Logger, db *gorm.DB) {
 	routes.SetupApotekRoutes(api, log, db)
 
 	// router for apoteker
-	routes.SetupApotekerRoutes(api, log)
+	routes.SetupApotekerRoutes(api, log, db)
 }

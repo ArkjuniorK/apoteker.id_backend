@@ -3,14 +3,17 @@ package handlers
 import (
 	"fmt"
 
-	"github.com/ArkjuniorK/apoteker.id_backend/database"
 	"github.com/ArkjuniorK/apoteker.id_backend/internal/model"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
-// type ApotekerHandler struct {
-// 	log *zap.Logger
-// }
+type ApotekerHandler struct {
+	log *zap.Logger
+	db  *gorm.DB
+}
+
 type Result struct {
 	ID         uint   `json:"id"`
 	FullName   string `json:"full_name"`
@@ -19,9 +22,13 @@ type Result struct {
 	ApotekName string `json:"apotek_name"`
 }
 
-func GetApotekers(c *fiber.Ctx) error {
+func NewApotekerHandler(l *zap.Logger, d *gorm.DB) *ApotekerHandler {
+	return &ApotekerHandler{log: l, db: d}
+}
+
+func (a ApotekerHandler) GetApotekers(c *fiber.Ctx) error {
 	var result []Result
-	database.DB.Raw("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id").Scan(&result)
+	a.db.Raw("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id").Scan(&result)
 
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
@@ -30,11 +37,11 @@ func GetApotekers(c *fiber.Ctx) error {
 	})
 }
 
-func GetApoteker(c *fiber.Ctx) error {
+func (a ApotekerHandler) GetApoteker(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 	var result Result
 
-	database.DB.Raw(fmt.Sprintf("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id WHERE apotekers.id='%d'", id)).Scan(&result)
+	a.db.Raw(fmt.Sprintf("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id WHERE apotekers.id='%d'", id)).Scan(&result)
 
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
@@ -50,7 +57,7 @@ func GetApoteker(c *fiber.Ctx) error {
 	})
 }
 
-func CreateApoteker(c *fiber.Ctx) error {
+func (a ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
 
 	var apoteker model.Apoteker
 
@@ -62,7 +69,7 @@ func CreateApoteker(c *fiber.Ctx) error {
 		})
 	}
 
-	create := database.DB.Create(&apoteker)
+	create := a.db.Create(&apoteker)
 
 	if create.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{
@@ -79,7 +86,7 @@ func CreateApoteker(c *fiber.Ctx) error {
 	})
 }
 
-func UpdateApoteker(c *fiber.Ctx) error {
+func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 	var apoteker model.Apoteker
 
@@ -94,7 +101,7 @@ func UpdateApoteker(c *fiber.Ctx) error {
 		})
 	}
 
-	update := database.DB.Where("id = ?", id).Save(&apoteker)
+	update := a.db.Where("id = ?", id).Save(&apoteker)
 
 	if update.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{
@@ -111,7 +118,7 @@ func UpdateApoteker(c *fiber.Ctx) error {
 	})
 }
 
-func DeleteApoteker(c *fiber.Ctx) error {
+func (a ApotekerHandler) DeleteApoteker(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 	var apoteker model.Apoteker
 
@@ -119,7 +126,7 @@ func DeleteApoteker(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer", "data": "{}"})
 	}
 
-	delete := database.DB.Where("id = ?", id).Unscoped().Delete(&apoteker)
+	delete := a.db.Where("id = ?", id).Unscoped().Delete(&apoteker)
 
 	if delete.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{

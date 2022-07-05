@@ -15,7 +15,7 @@ type ApotekHandler struct {
 	db  *gorm.DB
 }
 
-func New(l *zap.Logger, d *gorm.DB) *ApotekHandler {
+func NewApotekHandler(l *zap.Logger, d *gorm.DB) *ApotekHandler {
 	return &ApotekHandler{
 		log: l,
 		db:  d,
