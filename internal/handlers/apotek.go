@@ -7,61 +7,50 @@ import (
 	"github.com/ArkjuniorK/apoteker.id_backend/internal/model"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type ApotekHandler struct {
 	log *zap.Logger
+	db  *gorm.DB
 }
 
-type ApotekSerialize struct {
-	ID      uint   `json:"id"`
-	Logo    string `json:"logo"`
-	Name    string `json:"name"`
-	Address string `json:"address"`
-}
-
-func New(l *zap.Logger) *ApotekHandler {
+func New(l *zap.Logger, d *gorm.DB) *ApotekHandler {
 	return &ApotekHandler{
 		log: l,
+		db:  d,
 	}
-}
-
-func CreateResponseApotek(apotekModel model.Apotek) ApotekSerialize {
-	return ApotekSerialize{ID: apotekModel.ID, Logo: apotekModel.Logo, Name: apotekModel.Name, Address: apotekModel.Address}
 }
 
 func (a ApotekHandler) GetApoteks(c *fiber.Ctx) error {
-	apoteks := []model.Apotek{}
+	var apoteks []model.Apotek
 
-	database.DB.Find(&apoteks)
-	responses := []ApotekSerialize{}
-
-	for _, apotek := range apoteks {
-		response := CreateResponseApotek(apotek)
-		responses = append(responses, response)
-	}
-	return c.Status(200).JSON(responses)
+	database.DB.Model(&model.Apotek{}).Preload("Apotekers").Find(&apoteks)
+	return c.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": "get all apoteks",
+		"data":    apoteks,
+	})
 }
 
 func (a ApotekHandler) CreateApotek(c *fiber.Ctx) error {
 	var apotek model.Apotek
 
 	if err := c.BodyParser(&apotek); err != nil {
-		return c.Status(400).JSON(err.Error())
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+			"data":    "{}",
+		})
 	}
 
 	database.DB.Create(&apotek)
-	response := CreateResponseApotek(apotek)
 
-	return c.Status(200).JSON(response)
-}
-
-func findApotek(id int, apotek *model.Apotek) error {
-	database.DB.Find(&apotek, "id = ?", id)
-	if apotek.ID == 0 {
-		return errors.New("apotek doesnt exist")
-	}
-	return nil
+	return c.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": "Apotek created successfully",
+		"data":    apotek,
+	})
 }
 
 func (a ApotekHandler) GetApotek(c *fiber.Ctx) error {
@@ -70,66 +59,97 @@ func (a ApotekHandler) GetApotek(c *fiber.Ctx) error {
 	var apotek model.Apotek
 
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer"})
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+			"data":    "{}",
+		})
 	}
 
 	if err := findApotek(id, &apotek); err != nil {
 		return c.Status(400).JSON(err.Error())
 	}
-
-	response := CreateResponseApotek(apotek)
-	return c.Status(200).JSON(response)
+	return c.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": "get apotek",
+		"data":    apotek,
+	})
 }
 
 func (a ApotekHandler) UpdateApotek(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 
-	var apotek model.Apotek
+	type Apotek struct {
+		gorm.Model `json:"-"`
+		ID         uint   `json:"id"`
+		Logo       string `json:"logo"`
+		Name       string `json:"name"`
+		Address    string `json:"address"`
+	}
+
+	var apotek Apotek
 
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer"})
+		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer", "data": "{}"})
+	}
+	if err := c.BodyParser(&apotek); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+			"data":    "{}",
+		})
 	}
 
-	if err := findApotek(id, &apotek); err != nil {
-		return c.Status(400).JSON(err.Error())
+	update := database.DB.Where("id = ?", id).Save(&apotek)
+
+	if update.RowsAffected == 0 {
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": update.Error,
+			"data":    "{}",
+		})
 	}
 
-	type UpdateApotek struct {
-		Logo    string `json:"logo"`
-		Name    string `json:"name"`
-		Address string `json:"address"`
-	}
-	var updateData UpdateApotek
-
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(400).JSON(err.Error())
-	}
-
-	apotek.Logo = updateData.Logo
-	apotek.Name = updateData.Name
-	apotek.Address = updateData.Address
-
-	database.DB.Save(&apotek)
-
-	response := CreateResponseApotek(apotek)
-	return c.Status(200).JSON(response)
+	return c.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": "apoteker created successfully",
+		"data":    apotek,
+	})
 }
 
 func (a ApotekHandler) DeleteApotek(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 
 	var apotek model.Apotek
+	var apoteker model.Apoteker
 
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer"})
 	}
 
-	if err := findApotek(id, &apotek); err != nil {
-		return c.Status(400).JSON(err.Error())
+	deleteApoteker := database.DB.Where("apotek_id = ?", id).Unscoped().Delete(&apoteker)
+	deleteApotek := database.DB.Where("id = ?", id).Unscoped().Delete(&apotek)
+
+	if deleteApotek.RowsAffected == 0 && deleteApoteker.RowsAffected == 0 {
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "deleteApotek.Error",
+			"data":    "{}",
+		})
 	}
 
-	if err := database.DB.Delete(&apotek).Error; err != nil {
-		return c.Status(400).JSON(err.Error())
+	return c.Status(200).JSON(fiber.Map{
+		"success": true,
+		"message": "apotek deleted successfully",
+		"data":    "{}",
+	})
+}
+
+// Local function to find Apotek
+func findApotek(id int, apotek *model.Apotek) error {
+	database.DB.Model(&model.Apotek{}).Preload("Apotekers").Find(&apotek, "id = ?", id)
+	if apotek.ID == 0 {
+		return errors.New("apotek doesnt exist")
 	}
-	return c.Status(200).JSON(fiber.Map{"status": true, "message": "apotek delete successfully"})
+	return nil
 }

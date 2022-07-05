@@ -48,7 +48,7 @@ func main() {
 	app.Use(logger.New(*loggerConf))
 
 	// setup router here
-	router.SetupRouter(app, log)
+	router.SetupRouter(app, log, db)
 
 	// run the server
 	// and listen to port
