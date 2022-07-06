@@ -9,4 +9,5 @@ type Apotek struct {
 	Name       string     `json:"name"`
 	Address    string     `json:"address"`
 	Apotekers  []Apoteker `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"apoteker_lists"`
+	Pegawais   []Pegawai  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"pegawai_lists"`
 }
