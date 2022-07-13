@@ -6,6 +6,7 @@ import (
 	"github.com/ArkjuniorK/apoteker.id_backend/database"
 	"github.com/ArkjuniorK/apoteker.id_backend/internal/model"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -15,6 +16,9 @@ type ApotekHandler struct {
 	db  *gorm.DB
 }
 
+// Function to generate new ApotekHandler
+//
+// To add new feature to handler, pass the feature as parameter
 func NewApotekHandler(l *zap.Logger, d *gorm.DB) *ApotekHandler {
 	return &ApotekHandler{
 		log: l,
@@ -22,10 +26,12 @@ func NewApotekHandler(l *zap.Logger, d *gorm.DB) *ApotekHandler {
 	}
 }
 
-func (a ApotekHandler) GetApoteks(c *fiber.Ctx) error {
+// List all apotek, it would be use by Admin only
+func (a *ApotekHandler) GetApoteks(c *fiber.Ctx) error {
 	var apoteks []model.Apotek
 
-	database.DB.Model(&model.Apotek{}).Preload("Apotekers").Find(&apoteks)
+	// find all the apotek and send to client
+	a.db.Model(&model.Apotek{}).Preload("Apotekers").Find(&apoteks)
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
 		"message": "get all apoteks",
@@ -33,50 +39,54 @@ func (a ApotekHandler) GetApoteks(c *fiber.Ctx) error {
 	})
 }
 
-func (a ApotekHandler) CreateApotek(c *fiber.Ctx) error {
+// Create new apotek by given body
+func (a *ApotekHandler) CreateApotek(c *fiber.Ctx) error {
 	var apotek model.Apotek
 
+	// parse body to apotek struct and check the error
 	if err := c.BodyParser(&apotek); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": err.Error(),
-			"data":    "{}",
-		})
+		return c.Status(400).Send([]byte(err.Error()))
 	}
 
-	database.DB.Create(&apotek)
+	a.log.Sugar().Info(apotek)
 
-	return c.Status(200).JSON(fiber.Map{
+	// add apotek data into database
+	// and send the data to response
+	a.db.Create(&apotek)
+	return c.Status(200).JSON(&fiber.Map{
 		"success": true,
 		"message": "Apotek created successfully",
 		"data":    apotek,
 	})
 }
 
-func (a ApotekHandler) GetApotek(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("apotekId")
-
+// Get detail apotek by given UUID
+func (a *ApotekHandler) GetApotek(c *fiber.Ctx) error {
 	var apotek model.Apotek
 
+	// get the params and parse to UUID
+	// and check the error
+	apotek_id := c.Params("apotekId")
+	uid, err := uuid.Parse(apotek_id)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": err.Error(),
-			"data":    "{}",
-		})
+		return c.Status(500).Send([]byte(err.Error()))
 	}
 
-	if err := findApotek(id, &apotek); err != nil {
-		return c.Status(400).JSON(err.Error())
+	// find apotek by given uid
+	// and verify the error
+	if err := a.findApotek(uid, &apotek); err != nil {
+		return c.Status(400).Send([]byte(err.Error()))
 	}
-	return c.Status(200).JSON(fiber.Map{
+
+	// if apotek exists then send to client
+	return c.Status(200).JSON(&fiber.Map{
 		"success": true,
 		"message": "get apotek",
 		"data":    apotek,
 	})
 }
 
-func (a ApotekHandler) UpdateApotek(c *fiber.Ctx) error {
+func (a *ApotekHandler) UpdateApotek(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 
 	type Apotek struct {
@@ -117,7 +127,7 @@ func (a ApotekHandler) UpdateApotek(c *fiber.Ctx) error {
 	})
 }
 
-func (a ApotekHandler) DeleteApotek(c *fiber.Ctx) error {
+func (a *ApotekHandler) DeleteApotek(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 
 	var apotek model.Apotek
@@ -146,10 +156,13 @@ func (a ApotekHandler) DeleteApotek(c *fiber.Ctx) error {
 }
 
 // Local function to find Apotek
-func findApotek(id int, apotek *model.Apotek) error {
-	database.DB.Model(&model.Apotek{}).Preload("Apotekers").Find(&apotek, "id = ?", id)
-	if apotek.ID == 0 {
-		return errors.New("apotek doesnt exist")
+func (a *ApotekHandler) findApotek(uid uuid.UUID, apotek *model.Apotek) error {
+	var u uuid.NullUUID
+
+	a.db.Model(&model.Apotek{}).Preload("Apotekers").Find(&apotek, "uuid = ?", uid).Scan(&u)
+	if !u.Valid {
+		return errors.New("apotek doesn't exists")
 	}
+
 	return nil
 }

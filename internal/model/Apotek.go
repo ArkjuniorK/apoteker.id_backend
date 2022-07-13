@@ -1,12 +1,22 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Apotek struct {
-	gorm.Model `json:"-"`
-	ID         uint       `json:"id"`
+	gorm.Model `gorm:"embeded"`
+	UUID       uint       `json:"uuid" gorm:"unique;index"`
 	Logo       string     `json:"logo"`
 	Name       string     `json:"name"`
 	Address    string     `json:"address"`
 	Apotekers  []Apoteker `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"apoteker_lists"`
+}
+
+type ApotekCreateBody struct {
+	UUID    uuid.UUID `json:"_id" gorm:"unique;index"`
+	Logo    string    `json:"logo"`
+	Name    string    `json:"name"`
+	Address string    `json:"address"`
 }

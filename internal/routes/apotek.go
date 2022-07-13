@@ -15,10 +15,10 @@ func SetupApotekRoutes(r fiber.Router, l *zap.Logger, db *gorm.DB) {
 	apotek.Get("/", handler.GetApoteks)
 	// Create a apotek
 	apotek.Post("/", handler.CreateApotek)
-	// // Read one apotek
+	// Read one apotek
 	apotek.Get("/:apotekId", handler.GetApotek)
-	// // Update one apotek
+	// Update one apotek
 	apotek.Put("/:apotekId", handler.UpdateApotek)
-	// // Delete one apotek
+	// Delete one apotek
 	apotek.Delete("/:apotekId", handler.DeleteApotek)
 }

@@ -26,7 +26,7 @@ func NewApotekerHandler(l *zap.Logger, d *gorm.DB) *ApotekerHandler {
 	return &ApotekerHandler{log: l, db: d}
 }
 
-func (a ApotekerHandler) GetApotekers(c *fiber.Ctx) error {
+func (a *ApotekerHandler) GetApotekers(c *fiber.Ctx) error {
 	var result []Result
 	a.db.Raw("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id").Scan(&result)
 
@@ -37,7 +37,7 @@ func (a ApotekerHandler) GetApotekers(c *fiber.Ctx) error {
 	})
 }
 
-func (a ApotekerHandler) GetApoteker(c *fiber.Ctx) error {
+func (a *ApotekerHandler) GetApoteker(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 	var result Result
 
@@ -57,7 +57,7 @@ func (a ApotekerHandler) GetApoteker(c *fiber.Ctx) error {
 	})
 }
 
-func (a ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
+func (a *ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
 
 	var apoteker model.Apoteker
 
@@ -86,13 +86,14 @@ func (a ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
 	})
 }
 
-func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
-	id, err := c.ParamsInt("apotekId")
+func (a *ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
 	var apoteker model.Apoteker
 
+	id, err := c.ParamsInt("apotekId")
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer", "data": "{}"})
 	}
+
 	if err := c.BodyParser(&apoteker); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
@@ -102,7 +103,6 @@ func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
 	}
 
 	update := a.db.Where("id = ?", id).Save(&apoteker)
-
 	if update.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
@@ -118,7 +118,7 @@ func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
 	})
 }
 
-func (a ApotekerHandler) DeleteApoteker(c *fiber.Ctx) error {
+func (a *ApotekerHandler) DeleteApoteker(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 	var apoteker model.Apoteker
 

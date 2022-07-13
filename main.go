@@ -39,15 +39,23 @@ func main() {
 	// get all envs
 	port := config.Config("PORT")
 
+	// initiate logger
 	log := InitLogger()
 	defer log.Sync()
+
+	// connect database
+	// get the sql from db
+	// it would be used to close the connection
+	db = database.ConnectDB(log)
+	sql, err := db.DB()
+	if err != nil {
+		log.Sugar().Fatal("An error has occured\n", err)
+	}
 
 	// create new fiber app
 	// setup middlewares and routers
 	app := fiber.New(*fiberConf)
 	app.Use(logger.New(*loggerConf))
-
-	// setup router here
 	router.SetupRouter(app, log, db)
 
 	// run the server
@@ -58,15 +66,6 @@ func main() {
 			log.Sugar().Panic("Unable to start server ", err)
 		}
 	}()
-
-	// connect database
-	// get the sql from db
-	// it would be used to close the connection
-	db = database.ConnectDB(log)
-	sql, err := db.DB()
-	if err != nil {
-		log.Sugar().Fatal("An error has occured\n", err)
-	}
 
 	// graceful shutdown mechanism
 	// first create channel to check signal
