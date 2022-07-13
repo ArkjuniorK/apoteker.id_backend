@@ -1,4 +1,6 @@
-make.exe --dry-run --always-make --keep-going --print-directory
-'make.exe' is not recognized as an internal or external command,
-operable program or batch file.
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/arkjuniork/Development/apoteker.id_backend'
+make: Leaving directory '/home/arkjuniork/Development/apoteker.id_backend'
+ 
+Makefile:2: *** missing separator.  Stop.
 
