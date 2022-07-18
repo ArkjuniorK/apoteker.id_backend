@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-
 	"github.com/ArkjuniorK/apoteker.id_backend/database"
 	"github.com/ArkjuniorK/apoteker.id_backend/internal/model"
 	"github.com/gofiber/fiber/v2"
@@ -48,8 +46,6 @@ func (a *ApotekHandler) CreateApotek(c *fiber.Ctx) error {
 		return c.Status(400).Send([]byte(err.Error()))
 	}
 
-	a.log.Sugar().Info(apotek)
-
 	// add apotek data into database
 	// and send the data to response
 	a.db.Create(&apotek)
@@ -66,7 +62,7 @@ func (a *ApotekHandler) GetApotek(c *fiber.Ctx) error {
 
 	// get the params and parse to UUID
 	// and check the error
-	apotek_id := c.Params("apotekId")
+	apotek_id := c.Params("uuid")
 	uid, err := uuid.Parse(apotek_id)
 	if err != nil {
 		return c.Status(500).Send([]byte(err.Error()))
@@ -157,12 +153,13 @@ func (a *ApotekHandler) DeleteApotek(c *fiber.Ctx) error {
 
 // Local function to find Apotek
 func (a *ApotekHandler) findApotek(uid uuid.UUID, apotek *model.Apotek) error {
-	var u uuid.NullUUID
+	// var u uuid.NullUUID
 
-	a.db.Model(&model.Apotek{}).Preload("Apotekers").Find(&apotek, "uuid = ?", uid).Scan(&u)
-	if !u.Valid {
-		return errors.New("apotek doesn't exists")
-	}
+	a.db.Model(&model.Apotek{}).Preload("Apotekers").Find(&apotek, "uuid = ?", uid)
+	// .Scan(&u)
+	// if !u.Valid {
+	// 	return errors.New("apotek doesn't exists")
+	// }
 
 	return nil
 }

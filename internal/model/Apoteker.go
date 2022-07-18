@@ -7,7 +7,7 @@ import (
 
 type Apoteker struct {
 	gorm.Model `json:"-"`
-	UUID       uuid.UUID `json:"_id" gorm:"unique;index"`
+	UUID       uuid.UUID `json:"uuid" gorm:"unique;index"`
 	FullName   string    `json:"full_name"`
 	Username   string    `json:"user_name"`
 	Password   string    `json:"password"`

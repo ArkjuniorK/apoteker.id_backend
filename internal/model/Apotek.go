@@ -7,7 +7,7 @@ import (
 
 type Apotek struct {
 	gorm.Model `gorm:"embeded"`
-	UUID       uint       `json:"uuid" gorm:"unique;index"`
+	UUID       uuid.UUID  `json:"uuid" gorm:"unique;index"`
 	Logo       string     `json:"logo"`
 	Name       string     `json:"name"`
 	Address    string     `json:"address"`

@@ -8,7 +8,7 @@ Makefile:2: *** missing separator.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jul 13 14:22:29 2022
+# Make data base, printed on Mon Jul 18 14:30:03 2022
 
 # Variables
 
@@ -57,7 +57,7 @@ OLDPWD = /home/arkjuniork
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = /home/arkjuniork/.config/Code/CachedData/92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9
+VSCODE_CODE_CACHE_PATH = /home/arkjuniork/.config/Code/CachedData/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a
 # environment
 LANG = C
 # environment
@@ -95,7 +95,7 @@ MAKEFILE_LIST := Makefile
 # environment
 ZSH = /home/arkjuniork/.oh-my-zsh
 # environment
-VSCODE_PID = 3439
+VSCODE_PID = 6956
 # environment
 SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS = 0
 # environment
@@ -103,7 +103,7 @@ XDG_SESSION_TYPE = x11
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/2147,unix/unix:/tmp/.ICE-unix/2147
+SESSION_MANAGER = local/unix:@/tmp/.ICE-unix/2148,unix/unix:/tmp/.ICE-unix/2148
 # automatic
 *F = $(notdir $*)
 # environment
@@ -139,7 +139,7 @@ MAKEFILES :=
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = 916e20dc7a024b7fbd02033f0e5a84d5
+INVOCATION_ID = f3c3c51ef53141028081a95b09106c83
 # environment
 USERNAME = arkjuniork
 # automatic
@@ -165,7 +165,7 @@ GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
 # makefile
 .DEFAULT_GOAL := build
 # environment
-SYSTEMD_EXEC_PID = 2195
+SYSTEMD_EXEC_PID = 2198
 # environment
 HISTCONTROL = ignoredups
 # environment
@@ -177,15 +177,15 @@ USER = arkjuniork
 # default
 MAKE_VERSION := 4.3
 # environment
-MANAGERPID = 1892
+MANAGERPID = 1887
 # environment
 which_declare = typeset -f
 # environment
 DEBUGINFOD_URLS = https://debuginfod.fedoraproject.org/ 
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 3439
+GIO_LAUNCHED_DESKTOP_FILE_PID = 6956
 # environment
-SSH_AGENT_PID = 2093
+SSH_AGENT_PID = 2094
 # environment
 PAGER = less
 # environment
@@ -195,7 +195,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 GOMODCACHE = /home/arkjuniork/go/pkg/mod
 # environment
-JOURNAL_STREAM = 8:35032
+JOURNAL_STREAM = 8:35167
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -207,7 +207,7 @@ QT_IM_MODULE = ibus
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-2b599ad1-1.69.0-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-2b599ad1-1.69.1-main.sock
 # environment
 GOPROXY = direct
 # default
@@ -281,6 +281,6 @@ build:
 # strcache performance: lookups = 30 / hit rate = 16%
 # hash-table stats:
 # Load=25/8192=0%, Rehash=0, Collisions=0/30=0%
-# Finished Make data base on Wed Jul 13 14:22:29 2022
+# Finished Make data base on Mon Jul 18 14:30:03 2022
 
  
