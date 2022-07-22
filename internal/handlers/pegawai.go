@@ -10,61 +10,59 @@ import (
 	"gorm.io/gorm"
 )
 
-type ApotekerHandler struct {
+type PegawaiHandler struct {
 	log *zap.Logger
 	db  *gorm.DB
 }
 
-type Result struct {
+type ResultPegawai struct {
 	ID         uint   `json:"id"`
 	FullName   string `json:"full_name"`
 	Username   string `json:"user_name"`
 	ProfilePic string `json:"profile_picture"`
-	// ApotekName string `json:"apotek_name"`
+	ApotekName string `json:"apotek_name"`
 }
 
-func NewApotekerHandler(l *zap.Logger, d *gorm.DB) *ApotekerHandler {
-	return &ApotekerHandler{log: l, db: d}
+func NewPegawaiHandler(l *zap.Logger, d *gorm.DB) *PegawaiHandler {
+	return &PegawaiHandler{log: l, db: d}
 }
 
-func (a ApotekerHandler) GetApotekers(c *fiber.Ctx) error {
-	var result []Result
-	// database.DB.Raw("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id").Scan(&result)
-	database.DB.Raw("SELECT * FROM apotekers").Scan(&result)
+func (a PegawaiHandler) GetPegawais(c *fiber.Ctx) error {
+	var result []ResultPegawai
+	database.DB.Raw("SELECT pegawais.id, pegawais.full_name, pegawais.username, pegawais.profile_pic, apoteks.name AS apotek_name FROM pegawais INNER JOIN apoteks ON pegawais.apotek_id = apoteks.id").Scan(&result)
 
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
-		"message": "get all apoteks",
+		"message": "get all pegawais",
 		"data":    result,
 	})
 }
 
-func (a ApotekerHandler) GetApoteker(c *fiber.Ctx) error {
+func (a PegawaiHandler) GetPegawai(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
 	var result Result
 
-	// database.DB.Raw(fmt.Sprintf("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id WHERE apotekers.id='%d'", id)).Scan(&result)
-	database.DB.Raw(fmt.Sprintf("SELECT * FROM apotekers WHERE apotekers.id='%d'", id)).Scan(&result)
+	database.DB.Raw(fmt.Sprintf("SELECT pegawais.id, pegawais.full_name, pegawais.username, pegawais.profile_pic, apoteks.name AS apotek_name FROM pegawais INNER JOIN apoteks ON pegawais.apotek_id = apoteks.id WHERE pegawais.id='%d'", id)).Scan(&result)
 
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
-			"data":    "apoteker",
+			"data":    "pegawai",
 		})
 	}
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
-		"message": "get all apoteks",
+		"message": "get pegawai",
 		"data":    result,
 	})
 }
 
-func (a ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
+func (a PegawaiHandler) CreatePegawai(c *fiber.Ctx) error {
 
-	var apoteker model.Apoteker
+	var pegawai model.Pegawai
 
-	if err := c.BodyParser(&apoteker); err != nil {
+	if err := c.BodyParser(&pegawai); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
@@ -72,7 +70,7 @@ func (a ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
 		})
 	}
 
-	create := database.DB.Create(&apoteker)
+	create := database.DB.Create(&pegawai)
 
 	if create.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{
@@ -85,18 +83,18 @@ func (a ApotekerHandler) CreateApoteker(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
 		"message": "apoteker created successfully",
-		"data":    apoteker,
+		"data":    pegawai,
 	})
 }
 
-func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
+func (a PegawaiHandler) UpdatePegawai(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
-	var apoteker model.Apoteker
+	var pegawai model.Pegawai
 
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer", "data": "{}"})
 	}
-	if err := c.BodyParser(&apoteker); err != nil {
+	if err := c.BodyParser(&pegawai); err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
@@ -104,7 +102,7 @@ func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
 		})
 	}
 
-	update := database.DB.Where("id = ?", id).Save(&apoteker)
+	update := database.DB.Where("id = ?", id).Save(&pegawai)
 
 	if update.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{
@@ -116,20 +114,20 @@ func (a ApotekerHandler) UpdateApoteker(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
-		"message": "apoteker created successfully",
-		"data":    apoteker,
+		"message": "pegawai created successfully",
+		"data":    pegawai,
 	})
 }
 
-func (a ApotekerHandler) DeleteApoteker(c *fiber.Ctx) error {
+func (a PegawaiHandler) DeletePegawai(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
-	var apoteker model.Apoteker
+	var pegawai model.Pegawai
 
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": false, "message": "Please ensure that id is an integer", "data": "{}"})
 	}
 
-	delete := database.DB.Where("id = ?", id).Unscoped().Delete(&apoteker)
+	delete := database.DB.Where("id = ?", id).Unscoped().Delete(&pegawai)
 
 	if delete.RowsAffected == 0 {
 		return c.Status(400).JSON(fiber.Map{
@@ -141,7 +139,7 @@ func (a ApotekerHandler) DeleteApoteker(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
-		"message": "apoteker deleted successfully",
+		"message": "pegawai deleted successfully",
 		"data":    "{}",
 	})
 }

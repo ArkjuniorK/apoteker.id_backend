@@ -25,7 +25,7 @@ func NewApotekHandler(l *zap.Logger, d *gorm.DB) *ApotekHandler {
 func (a ApotekHandler) GetApoteks(c *fiber.Ctx) error {
 	var apoteks []model.Apotek
 
-	database.DB.Model(&model.Apotek{}).Preload("Apotekers").Find(&apoteks)
+	database.DB.Model(&model.Apotek{}).Preload("Pegawais").Find(&apoteks)
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
 		"message": "get all apoteks",
@@ -55,23 +55,21 @@ func (a ApotekHandler) CreateApotek(c *fiber.Ctx) error {
 
 func (a ApotekHandler) GetApotek(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("apotekId")
-
 	var apotek model.Apotek
 
+	// database.DB.Raw(fmt.Sprintf("SELECT apotekers.id, apotekers.full_name, apotekers.username, apotekers.profile_pic, apoteks.name AS apotek_name FROM apotekers INNER JOIN apoteks ON apotekers.apotek_id = apoteks.id WHERE apotekers.id='%d'", id)).Scan(&result)
+	// database.DB.Raw(fmt.Sprintf("SELECT * FROM apoteks WHERE apoteks.id='%d'", id)).Preload("Pegawais").Scan(&apotek)
+	database.DB.Where("id = ?", id).Preload("Pegawais").First(&apotek)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
-			"data":    "{}",
+			"data":    "apotek",
 		})
-	}
-
-	if err := findApotek(id, &apotek); err != nil {
-		return c.Status(400).JSON(err.Error())
 	}
 	return c.Status(200).JSON(fiber.Map{
 		"success": true,
-		"message": "get apotek",
+		"message": "get all apoteks",
 		"data":    apotek,
 	})
 }

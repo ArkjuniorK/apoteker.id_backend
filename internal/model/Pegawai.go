@@ -2,17 +2,17 @@ package model
 
 import "gorm.io/gorm"
 
-type Apoteker struct {
+type Pegawai struct {
 	gorm.Model `json:"-"`
 	ID         uint   `json:"id"`
 	FullName   string `json:"full_name"`
 	Username   string `json:"user_name"`
 	Password   string `json:"password"`
 	ProfilePic string `json:"profile_picture"`
-	Apoteks    Apotek `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"apotek"`
+	ApotekID   uint   `json:"apotek_id"`
 }
 
-type ApotekerSerialize struct {
+type PegawaiSerialize struct {
 	gorm.Model `json:"-"`
 	ID         uint   `json:"id"`
 	FullName   string `json:"full_name"`
